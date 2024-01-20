@@ -12,16 +12,16 @@
         "Camera": "https://images.wsdot.wa.gov/nc/020vc21450.jpg"
     },
     {
-        "Pass": "Snoqualmie Pass",
+        "Pass": "Snoqualmie",
         "Elevation": 3022,
         "Location": "I-90 at mp 52.1: Snoqualmie Summit",
-        "Camera": "https://images.wsdot.wa.gov/nc/090vc16500.jpg"
+        "Camera": "https://images.wsdot.wa.gov/sc/090VC05200.jpg"
     },
     {
         "Pass": "Stevens Pass",
         "Elevation": 4061,
         "Location": "US 2 at mp 64.56: Stevens Pass",
-        "Camera": "https://images.wsdot.wa.gov/sc/090VC05200.jpg"
+        "Camera": "https://images.wsdot.wa.gov/nc/002vc06458.jpg"
     },
     {
         "Pass": "Wauconda Pass",
