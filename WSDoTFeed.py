@@ -36,6 +36,13 @@ def load_feed_info():
     except FileNotFoundError:
         return []
     
+def load_pass_info():
+    try:
+        with open("WSDotPasses.json", "r") as file:
+            return json.load(file)
+    except FileNotFoundError:
+        return []
+    
 class HTMLContainer:
     pass
     
@@ -110,7 +117,7 @@ def fetch_preview(url):
     except Exception as e:
         return str(e)
     
-def send_discord_message_passes(webhook_url, feed_name, feed_icon, color, tags, image, entry):
+def send_discord_message_passes(webhook_url, feed_name, feed_icon, color, tags, image, entry, waPass):
     try:
         title = entry.title
     except AttributeError:
@@ -132,7 +139,7 @@ def send_discord_message_passes(webhook_url, feed_name, feed_icon, color, tags, 
                 }
             ],
             "image": {
-                "url": image
+                "url": waPass['Camera']
             }
             }
 
@@ -145,6 +152,7 @@ def send_discord_message_passes(webhook_url, feed_name, feed_icon, color, tags, 
     else:
         print(f"Failed to send message: {response.status_code}")
 
+passes = load_pass_info()
 
 feed_info = load_feed_info()
 for feed in feed_info:
@@ -165,9 +173,12 @@ for feed in feed_info:
             tags = ""
             image = fetch_preview(entry.link)
             time.sleep(1)
-            print(f"Sending new entry: {entry.title}")
             if feed_name == "WSDoT Highway Alerts":
                 send_discord_message_road(webhook, feed_name, feed_icon, feed_color, tags, image, entry)
             else:
-                send_discord_message_passes(webhook, feed_name, feed_icon, feed_color, tags, image, entry)
+                for waPass in passes:
+                    if waPass['Pass'] in feed_name:
+                        print(f"Sending new entry: {entry.title}")
+                        send_discord_message_passes(webhook, feed_name, feed_icon, feed_color, tags, image, entry, waPass)
+                
 

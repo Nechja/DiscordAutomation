@@ -1,0 +1,50 @@
+[
+    {
+        "Pass": "Blewett Pass",
+        "Elevation": 4102,
+        "Location": "US 97 at mp 159.6: Blewett Pass",
+        "Camera": "https://images.wsdot.wa.gov/nc/097vc16375.jpg"
+    },
+    {
+        "Pass": "Loup Loup Pass",
+        "Elevation": 4020,
+        "Location": "SR 20 at mp 222.2: Loup Loup Pass",
+        "Camera": "https://images.wsdot.wa.gov/nc/020vc21450.jpg"
+    },
+    {
+        "Pass": "Snoqualmie Pass",
+        "Elevation": 3022,
+        "Location": "I-90 at mp 52.1: Snoqualmie Summit",
+        "Camera": "https://images.wsdot.wa.gov/nc/090vc16500.jpg"
+    },
+    {
+        "Pass": "Stevens Pass",
+        "Elevation": 4061,
+        "Location": "US 2 at mp 64.56: Stevens Pass",
+        "Camera": "https://images.wsdot.wa.gov/sc/090VC05200.jpg"
+    },
+    {
+        "Pass": "Wauconda Pass",
+        "Elevation": 4310,
+        "Location": "SR 20 at MP 289",
+        "Camera": "https://images.wsdot.wa.gov/nc/020vc28872.jpg"
+    },
+    {
+        "Pass": "Manastash Ridge",
+        "Elevation": 2672,
+        "Location": "I-82 at mp 7.7: Manastash Ridge",
+        "Camera": "https://images.wsdot.wa.gov/rweather/UMRidge_medium.jpg"
+    },
+    {
+        "Pass": "White Pass",
+        "Elevation": 4502,
+        "Location": "US 12 at mp 150.9: White Pass",
+        "Camera": "https://images.wsdot.wa.gov/sc/012vc15095.jpg"
+    },
+    {
+        "Pass": "Mt. Baker",
+        "Elevation": 3265,
+        "Location": "SR 542 at mp 52.22: Mt Baker",
+        "Camera": ""
+    }
+]
