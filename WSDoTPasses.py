@@ -3,7 +3,8 @@ import json
 import time
 import re
 import requests
-from datetime import datetime
+from datetime import datetime, timedelta
+from MongoDBHandler import MongoDBHandler
 
 
 class FeedManager:
@@ -109,29 +110,42 @@ class DiscordNotifier:
             print(f"Failed to send message: {response.status_code}")
 
 
-# Main Execution
 def main():
-    feed_manager = FeedManager("WSDoTFeed.json", "WSDotPasses.json")
+    mongo_handler = MongoDBHandler("mongodb://localhost:27017", "WSDotPasses")
     feed_parser = FeedParser()
     pass_parser = PassParser()
     notifier = DiscordNotifier()
+    mongo_handler.print_all_data()
+    
+    feeds = mongo_handler.get_feed_info()
+    print(feeds)
+    print(mongo_handler.test_connection())
+    
 
-    for feed in feed_manager.feed_info:
-        feed_name, feed_icon, feed_url, feed_color, webhook = feed['name'], feed['icon'], feed['address'], feed['color'], feed['webhook']
-        last_seen_entry_id = feed_manager.load_last_seen_entry(feed_name)
+    for feed in feeds:
+        id, feed_name, feed_icon, feed_url, feed_color, webhook = (feed['_id'],feed['name'], feed['icon'], feed['address'], feed['color'], feed['webhook'])
+
+        # Check if it's time to post again
+        #if last_posted_datetime and datetime.now() - last_posted_datetime < timedelta(hours=2)
+        last_seen_entry_id = None
         new_entries = feed_parser.fetch_new_entries(feed_url, last_seen_entry_id)
+        for entry in new_entries:
+            tags = ""
+            passes = mongo_handler.get_passes()
+            wa_pass = pass_parser.find_partial_match(passes, entry.title)
+            if wa_pass is not None:
+                frequency_hours = wa_pass['Frequency']
+                last_posted_datetime = wa_pass['Last_Posted']
+                if last_posted_datetime and datetime.now() - last_posted_datetime < timedelta(hours=frequency_hours):
+                    print(f"Skipping entry due to frequency constraints: {entry.title}")
+                    continue
+                print(f"Sending new entry: {entry.title}")
+                summary = pass_parser.parse_html_passes(entry.summary)
+                notifier.send_discord_message_passes(webhook, feed_name, feed_icon, feed_color, tags, entry, wa_pass, summary)
+                current_datetime = datetime.now()
+                mongo_handler.update_last_posted_entry_datetime(wa_pass['_id'], current_datetime)
 
-        if new_entries:
-            last_entry_id = new_entries[0].get("id", new_entries[0].link)
-            feed_manager.save_last_seen_entry(feed_name, last_entry_id)
 
-            for entry in new_entries:
-                tags = ""
-                wa_pass = pass_parser.find_partial_match(feed_manager.passes, entry.title)
-                if wa_pass is not None:
-                    print(f"Sending new entry: {entry.title}")
-                    summary = pass_parser.parse_html_passes(entry.summary)
-                    notifier.send_discord_message_passes(webhook, feed_name, feed_icon, feed_color, tags, entry, wa_pass, summary)
 
 
 if __name__ == "__main__":
