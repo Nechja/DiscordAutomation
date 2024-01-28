@@ -3,6 +3,12 @@ import json
 import time
 import requests
 from bs4 import BeautifulSoup
+from pymongo import MongoClient
+
+def get_mongo_collection(collection_name):
+    client = MongoClient('localhost', 27017) 
+    db = client.NewsFeeds  # your database name
+    return db[collection_name]
 
 def save_last_seen_entry(feed_name, last_seen_entry_id):
     with open(f"last_seen_{feed_name}.txt", "w") as file:
@@ -14,6 +20,12 @@ def load_last_seen_entry(feed_name):
             return file.read().strip()
     except FileNotFoundError:
         return None
+
+def update_last_seen_in_db(feed_name, last_seen_entry_id):
+    feed_info_collection = get_mongo_collection(collection_name)
+    query = {"name": feed_name}
+    new_values = {"$set": {"last_seen": last_seen_entry_id}}
+    feed_info_collection.update_one(query, new_values)
 
 def fetch_new_entries(url, last_seen_entry_id):
     feed = feedparser.parse(url)
@@ -29,11 +41,8 @@ def fetch_new_entries(url, last_seen_entry_id):
     return new_entries
 
 def load_feed_info():
-    try:
-        with open("NPRFeed.json", "r") as file:
-            return json.load(file)
-    except FileNotFoundError:
-        return []
+    feed_info_collection = get_mongo_collection("NPR")
+    return list(feed_info_collection.find({}))
     
 def send_discord_message(webhook_url, feed_name, feed_icon, color, tags, image, entry):
 
@@ -84,6 +93,9 @@ def fetch_preview(url):
         return str(e)
 
 
+collection_name = "NPR"
+get_mongo_collection(collection_name)
+
 feed_info = load_feed_info()
 for feed in feed_info:
     feed_name = feed['name']
@@ -92,17 +104,16 @@ for feed in feed_info:
     feed_color = feed['color']
     webhook = feed['webhook']
 
-    last_seen_entry_id = load_last_seen_entry(feed_name)
+    last_seen_entry_id = feed['last_seen']
     new_entries = fetch_new_entries(feed_url, last_seen_entry_id)
 
     if new_entries:
         last_entry_id = new_entries[0].get("id", new_entries[0].link)
-        save_last_seen_entry(feed_name, last_entry_id)
+        update_last_seen_in_db(feed_name, last_entry_id)
 
         for entry in new_entries:
             tags = ""
             image = fetch_preview(entry.link)
-            time.sleep(1)
             print(f"Sending new entry: {entry.title}")
             send_discord_message(webhook, feed_name, feed_icon, feed_color, tags, image, entry)
 
